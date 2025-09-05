@@ -77,11 +77,18 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Command: Favourite a prompt/response
     context.subscriptions.push(
-        vscode.commands.registerCommand('copilot-prompt-favourites.favouritePrompt', async () => {
-            const prompt = await vscode.window.showInputBox({ prompt: 'Enter the Copilot prompt to favourite' });
-            if (!prompt) { return; }
-            const response = await vscode.window.showInputBox({ prompt: 'Enter the Copilot response to favourite' });
-            if (!response) { return; }
+        vscode.commands.registerCommand('copilot-prompt-favourites.favouritePrompt', async (...args) => {
+            let prompt: string | undefined;
+            let response: string | undefined;
+            if (args && args.length === 2 && typeof args[0] === 'string' && typeof args[1] === 'string') {
+                prompt = args[0];
+                response = args[1];
+            } else {
+                prompt = await vscode.window.showInputBox({ prompt: 'Enter the Copilot prompt to favourite' });
+                if (!prompt) { return; }
+                response = await vscode.window.showInputBox({ prompt: 'Enter the Copilot response to favourite' });
+                if (!response) { return; }
+            }
             const favourites: FavouritePrompt[] = context.globalState.get(FAVOURITES_KEY, []);
             favourites.push({ prompt, response, timestamp: Date.now() });
             await context.globalState.update(FAVOURITES_KEY, favourites);
@@ -91,12 +98,29 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Command: View favourites
     context.subscriptions.push(
-        vscode.commands.registerCommand('copilot-prompt-favourites.viewFavourites', async () => {
+        vscode.commands.registerCommand('copilot-prompt-favourites.viewFavourites', async (...args) => {
             const favourites: FavouritePrompt[] = context.globalState.get(FAVOURITES_KEY, []);
+            let result: string;
             if (favourites.length === 0) {
-                vscode.window.showInformationMessage('No favourited prompts yet.');
-                return;
+                result = 'No favourited prompts yet.';
+                vscode.window.showInformationMessage(result);
+                return result;
             }
+            // If an index is provided, return that favourite directly
+            if (args && args.length === 1 && typeof args[0] === 'number') {
+                const idx = args[0];
+                if (idx >= 0 && idx < favourites.length) {
+                    const fav = favourites[idx];
+                    result = `Prompt: ${fav.prompt}\nResponse: ${fav.response}`;
+                    vscode.window.showInformationMessage(result);
+                    return result;
+                } else {
+                    result = 'Invalid favourite index.';
+                    vscode.window.showInformationMessage(result);
+                    return result;
+                }
+            }
+            // Otherwise, show quick pick and return selected
             const items = favourites.map((fav, idx) => ({
                 label: `Prompt #${idx + 1}`,
                 description: fav.prompt,
@@ -104,8 +128,13 @@ export function activate(context: vscode.ExtensionContext) {
             }));
             const selected = await vscode.window.showQuickPick(items, { placeHolder: 'Select a favourite to view details' });
             if (selected) {
-                vscode.window.showInformationMessage(`Prompt: ${selected.description}\nResponse: ${selected.detail}`);
+                result = `Prompt: ${selected.description}\nResponse: ${selected.detail}`;
+                vscode.window.showInformationMessage(result);
+                return result;
             }
+            result = 'No favourite selected.';
+            vscode.window.showInformationMessage(result);
+            return result;
         })
     );
 

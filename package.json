@@ -1,0 +1,59 @@
+{
+  "name": "copilot-prompt-favourites",
+  "displayName": "Copilot Prompt Favourites",
+  "description": "Enable users to favourite and store prompts with helpful Copilot responses.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:copilot-prompt-favourites.helloWorld",
+    "onCommand:copilot-prompt-favourites.favouritePrompt",
+    "onCommand:copilot-prompt-favourites.viewFavourites",
+    "onCommand:copilot-prompt-favourites.removeFavourite",
+    "onCommand:copilot-prompt-favourites.showFavouritesWebview"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "copilot-prompt-favourites.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "copilot-prompt-favourites.favouritePrompt",
+        "title": "Favourite Copilot Prompt"
+      },
+      {
+        "command": "copilot-prompt-favourites.viewFavourites",
+        "title": "View Favourite Copilot Prompts"
+      },
+      {
+        "command": "copilot-prompt-favourites.removeFavourite",
+        "title": "Remove Favourite Copilot Prompt"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.103.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.34.0",
+    "typescript": "^5.9.2",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
